@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<SyntaxDefinition name="Sketchpad" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+
+  <Color name="String"   foreground="#2E7D32" />
+  <Color name="Modifier" foreground="#E65100" />
+  <Color name="Keyword"  foreground="#1565C0" fontWeight="bold" />
+
+  <RuleSet>
+
+    <!-- NOTE: AvalonEdit 6.x rejects any Rule/Span whose regex can produce a
+         zero-length match during its internal pre-check. Line comments (#…)
+         cannot be expressed safely with a <Rule> or a <Span end="$">.
+         Comment colouring is handled instead by CommentColouriser.cs, a
+         custom IVisualLineTransformer registered in MainWindow. -->
+
+    <!-- Quoted strings (label and value) -->
+    <Span color="String">
+      <Begin>"</Begin>
+      <End>"</End>
+    </Span>
+
+    <!-- Modifier brackets -->
+    <Span color="Modifier">
+      <Begin>\[</Begin>
+      <End>\]</End>
+    </Span>
+
+    <!-- Element type keywords (case-insensitive) -->
+    <Keywords color="Keyword">
+      <!-- Layout -->
+      <Word>window</Word>
+      <Word>panel</Word>
+      <Word>card</Word>
+      <Word>row</Word>
+      <Word>col</Word>
+      <Word>divider</Word>
+      <Word>spacer</Word>
+      <!-- Navigation -->
+      <Word>navbar</Word>
+      <Word>sidebar</Word>
+      <Word>menu</Word>
+      <Word>nav</Word>
+      <Word>item</Word>
+      <Word>tabs</Word>
+      <Word>tab</Word>
+      <Word>brand</Word>
+      <!-- Form -->
+      <Word>field</Word>
+      <Word>textarea</Word>
+      <Word>checkbox</Word>
+      <Word>radio</Word>
+      <Word>select</Word>
+      <Word>toggle</Word>
+      <Word>slider</Word>
+      <Word>button</Word>
+      <!-- Display -->
+      <Word>label</Word>
+      <Word>text</Word>
+      <Word>heading</Word>
+      <Word>avatar</Word>
+      <Word>image</Word>
+      <Word>badge</Word>
+      <Word>tag</Word>
+      <Word>table</Word>
+      <Word>columns</Word>
+      <Word>icon</Word>
+      <!-- Feedback -->
+      <Word>alert</Word>
+      <Word>toast</Word>
+      <Word>spinner</Word>
+      <Word>progress</Word>
+    </Keywords>
+
+  </RuleSet>
+</SyntaxDefinition>
