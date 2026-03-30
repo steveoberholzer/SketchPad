@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using Sketchpad.App.Highlighting;
 using Sketchpad.Core.Ast;
 using Sketchpad.Core.Rendering;
+using Sketchpad.Renderers.LoFi;
 using Sketchpad.Renderers.Sketch;
 
 namespace Sketchpad.App;
@@ -28,7 +29,7 @@ public partial class MainWindow : Window
         EditorBox.TextArea.TextView.LineTransformers.Add(new CommentColouriser());
 
         // Renderers
-        _renderers      = [new SketchRenderer()];
+        _renderers      = [new LoFiRenderer(), new SketchRenderer()];
         _activeRenderer = _renderers[0];
         RendererCombo.ItemsSource   = _renderers.Select(r => r.DisplayName).ToList();
         RendererCombo.SelectedIndex = 0;

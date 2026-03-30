@@ -10,7 +10,7 @@ namespace Sketchpad.Renderers.Sketch;
 
 public class SketchRenderer : IUiRenderer<UIElement>
 {
-    public string DisplayName => "Sketch";
+    public string DisplayName => "Realistic";
 
     public UIElement Render(UiDocument document)
     {
