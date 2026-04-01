@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Sketchpad.App.Completion;
 using Sketchpad.App.Highlighting;
 using Sketchpad.Core.Ast;
 using Sketchpad.Core.Rendering;
@@ -39,6 +40,9 @@ public partial class MainWindow : Window
         _debounce.Tick += (_, _) => { _debounce.Stop(); ParseAndRender(); };
 
         EditorBox.TextChanged += (_, _) => { _debounce.Stop(); _debounce.Start(); };
+
+        // IntelliSense
+        _ = new CompletionController(EditorBox);
 
         EditorBox.Text = DefaultContent();
     }
