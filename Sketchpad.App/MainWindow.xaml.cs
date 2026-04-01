@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Sketchpad.App.About;
 using Sketchpad.App.Completion;
 using Sketchpad.App.Highlighting;
 using Sketchpad.Core.Ast;
@@ -40,6 +41,9 @@ public partial class MainWindow : Window
         _debounce.Tick += (_, _) => { _debounce.Stop(); ParseAndRender(); };
 
         EditorBox.TextChanged += (_, _) => { _debounce.Stop(); _debounce.Start(); };
+
+        // Window icon
+        Icon = AppIcon.Generate(32);
 
         // IntelliSense + context menu
         _ = new CompletionController(EditorBox);
@@ -124,6 +128,9 @@ public partial class MainWindow : Window
             Title            = "Sketchpad";
         }
     }
+
+    private void About_Click(object sender, RoutedEventArgs e)
+        => new AboutWindow { Owner = this }.ShowDialog();
 
     private void RendererCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

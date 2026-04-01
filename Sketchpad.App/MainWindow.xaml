@@ -20,6 +20,9 @@
                 <MenuItem Header="Export _HTML…" Click="ExportHtml_Click"/>
             </MenuItem>
             <MenuItem Header="_Samples" Click="Samples_Click"/>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About Sketchpad…" Click="About_Click"/>
+            </MenuItem>
         </Menu>
 
         <!-- Toolbar -->

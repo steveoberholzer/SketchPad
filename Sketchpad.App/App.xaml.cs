@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Threading;
+using Sketchpad.App.Splash;
 
 namespace Sketchpad.App;
 
@@ -9,7 +10,6 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // Catch exceptions that reach the dispatcher message loop
         DispatcherUnhandledException += (_, ex) =>
         {
             ShowError(ex.Exception);
@@ -17,7 +17,6 @@ public partial class App : Application
             Shutdown(1);
         };
 
-        // Catch exceptions on background threads
         AppDomain.CurrentDomain.UnhandledException += (_, ex) =>
         {
             if (ex.ExceptionObject is Exception exception)
@@ -26,9 +25,24 @@ public partial class App : Application
 
         try
         {
+            // Splash screen — shown first, fades out after a minimum display time
+            var splash = new SplashWindow();
+            splash.Show();
+
             var window = new MainWindow();
             MainWindow = window;
-            window.Show();
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1800) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                splash.FadeOutAndClose(() =>
+                {
+                    window.Show();
+                    window.Activate();
+                });
+            };
+            timer.Start();
         }
         catch (Exception ex)
         {

@@ -1,0 +1,86 @@
+<Window x:Class="Sketchpad.App.About.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Width="400" Height="258"
+        Opacity="0"
+        KeyDown="OnKeyDown">
+
+    <Border Background="#FFFDF0"
+            CornerRadius="12"
+            BorderBrush="#CCCCCC"
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.18"
+                              BlurRadius="20" ShadowDepth="0"/>
+        </Border.Effect>
+
+        <Grid Margin="36,28,36,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="18"/>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="18"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Icon + Title -->
+            <StackPanel Grid.Row="0"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+                <Image x:Name="IconImage"
+                       Width="48" Height="48"
+                       Margin="0,0,14,0"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Sketchpad"
+                               FontFamily="Segoe Print, Comic Sans MS, Segoe UI"
+                               FontSize="26" FontWeight="Bold"
+                               Foreground="#222222"/>
+                    <TextBlock Text="Version 1.0"
+                               FontFamily="Segoe UI" FontSize="12"
+                               Foreground="#888888"
+                               Margin="0,3,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Divider -->
+            <Rectangle Grid.Row="2" Fill="#DDDDDD"/>
+
+            <!-- Description -->
+            <TextBlock Grid.Row="4"
+                       Text="A lightweight DSL for sketching UI mockups and wireframes."
+                       FontFamily="Segoe UI" FontSize="12"
+                       Foreground="#555555"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"/>
+
+            <!-- Tech stack -->
+            <TextBlock Grid.Row="6"
+                       Text="Built with .NET 10 · WPF · AvalonEdit"
+                       FontFamily="Segoe UI" FontSize="11"
+                       Foreground="#AAAAAA"
+                       HorizontalAlignment="Center"/>
+
+            <!-- OK button -->
+            <Button Grid.Row="8"
+                    Content="  OK  "
+                    HorizontalAlignment="Center"
+                    Padding="16,6"
+                    FontSize="12"
+                    IsDefault="True"
+                    Click="Ok_Click"/>
+        </Grid>
+    </Border>
+</Window>

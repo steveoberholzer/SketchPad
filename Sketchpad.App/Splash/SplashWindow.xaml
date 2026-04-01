@@ -1,0 +1,81 @@
+<Window x:Class="Sketchpad.App.Splash.SplashWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Width="460" Height="270"
+        ShowInTaskbar="False"
+        Opacity="0">
+
+    <Border Background="#FFFDF0"
+            CornerRadius="14"
+            BorderBrush="#CCCCCC"
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="#000000" Opacity="0.22"
+                              BlurRadius="28" ShadowDepth="0"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="7"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="6"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="20"/>
+            </Grid.RowDefinitions>
+
+            <!-- App icon -->
+            <Image x:Name="IconImage"
+                   Grid.Row="1"
+                   Width="68" Height="68"
+                   HorizontalAlignment="Center"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
+
+            <!-- App name -->
+            <TextBlock Grid.Row="3"
+                       Text="Sketchpad"
+                       FontFamily="Segoe Print, Comic Sans MS, Segoe UI"
+                       FontSize="30" FontWeight="Bold"
+                       Foreground="#222222"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Tagline -->
+            <TextBlock Grid.Row="5"
+                       Text="UI Mockup &amp; Wireframe Design Tool"
+                       FontFamily="Segoe UI" FontSize="13"
+                       Foreground="#888888"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Version -->
+            <TextBlock Grid.Row="7"
+                       Text="Version 1.0"
+                       FontFamily="Segoe UI" FontSize="11"
+                       Foreground="#AAAAAA"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Scanning loading bar -->
+            <Border Grid.Row="9"
+                    Height="3" Background="#E8E8E8"
+                    CornerRadius="1.5" ClipToBounds="True"
+                    Margin="40,0">
+                <Rectangle x:Name="LoadingBar"
+                           Width="90" Height="3"
+                           Fill="#BBBBBB" HorizontalAlignment="Left">
+                    <Rectangle.RenderTransform>
+                        <TranslateTransform x:Name="LoadingTranslate"/>
+                    </Rectangle.RenderTransform>
+                </Rectangle>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
