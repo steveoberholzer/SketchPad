@@ -41,8 +41,9 @@ public partial class MainWindow : Window
 
         EditorBox.TextChanged += (_, _) => { _debounce.Stop(); _debounce.Start(); };
 
-        // IntelliSense
+        // IntelliSense + context menu
         _ = new CompletionController(EditorBox);
+        _ = new ContextMenuController(EditorBox);
 
         EditorBox.Text = DefaultContent();
     }

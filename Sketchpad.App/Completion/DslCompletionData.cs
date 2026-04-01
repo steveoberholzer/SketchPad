@@ -24,6 +24,12 @@ public sealed class DslCompletionData : ICompletionData
         _selectLength = selectLength;
     }
 
+    // ── Public snippet data (used by ContextMenuController) ──────────────────
+
+    public string InsertText   => _insertText;
+    public int    SelectOffset => _selectOffset;
+    public int    SelectLength => _selectLength;
+
     // ── ICompletionData ───────────────────────────────────────────────────────
 
     public ImageSource? Image       => null;
