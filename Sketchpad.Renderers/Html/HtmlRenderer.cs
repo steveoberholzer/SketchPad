@@ -242,7 +242,7 @@ public class HtmlRenderer : IUiRenderer<string>
         if (cols?.Label != null)
         {
             sb.AppendLine($"{indent}  <thead><tr>");
-            foreach (var h in cols.Label.Split(','))
+            foreach (var h in cols.Label.Split(", "))
                 sb.AppendLine($"{indent}    <th>{Esc(h.Trim())}</th>");
             sb.AppendLine($"{indent}  </tr></thead>");
         }
@@ -251,7 +251,7 @@ public class HtmlRenderer : IUiRenderer<string>
         foreach (var row in node.Children.Where(c => c.Type == ElementType.Row))
         {
             sb.AppendLine($"{indent}    <tr>");
-            foreach (var cell in (row.Label ?? "").Split(','))
+            foreach (var cell in (row.Label ?? "").Split(", "))
                 sb.AppendLine($"{indent}      <td>{Esc(cell.Trim())}</td>");
             sb.AppendLine($"{indent}    </tr>");
         }
