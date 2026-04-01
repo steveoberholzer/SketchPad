@@ -104,6 +104,11 @@ public sealed class DslCompletionData : ICompletionData
         Snippet("toast",    "Toast notification",             "toast \"Message\"",            7, 7),
         Snippet("spinner",  "Loading spinner",                "spinner"),
         Snippet("progress", "Progress bar",                   "progress [50]"),
+
+        // Date / Time
+        Snippet("datepicker",     "Date input",               "datepicker \"Label\" = \"2024-01-15\"",          12, 5),
+        Snippet("datetimepicker", "Date and time input",      "datetimepicker \"Label\" = \"2024-01-15 09:00\"", 16, 5),
+        Snippet("calendar",       "Full month calendar view", "calendar \"Schedule\"",                           10, 8),
     ];
 
     private static DslCompletionData Snippet(string kw, string desc, string insert,

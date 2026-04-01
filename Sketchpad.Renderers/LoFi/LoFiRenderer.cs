@@ -93,12 +93,16 @@ public class LoFiRenderer : IUiRenderer<UIElement>
                 ElementType.Table    => RenderTable(node),
                 ElementType.Icon     => RenderIcon(node),
 
-                ElementType.Alert    => RenderAlert(node),
-                ElementType.Toast    => RenderToast(node),
-                ElementType.Spinner  => RenderSpinner(),
-                ElementType.Progress => RenderProgress(node),
+                ElementType.Alert          => RenderAlert(node),
+                ElementType.Toast          => RenderToast(node),
+                ElementType.Spinner        => RenderSpinner(),
+                ElementType.Progress       => RenderProgress(node),
 
-                _                    => RenderPlaceholder(node),
+                ElementType.DatePicker     => RenderDatePicker(node),
+                ElementType.DateTimePicker => RenderDateTimePicker(node),
+                ElementType.Calendar       => RenderCalendar(node),
+
+                _                          => RenderPlaceholder(node),
             };
         }
         catch
@@ -776,6 +780,178 @@ public class LoFiRenderer : IUiRenderer<UIElement>
             Child = track, Margin = new Thickness(0, 4, 0, 4),
         };
     }
+
+    // ── Date / Time ───────────────────────────────────────────────────────────
+
+    private UIElement RenderDatePicker(UiNode node)
+    {
+        var stack = new StackPanel { Orientation = Orientation.Vertical };
+        if (node.Label != null)
+            stack.Children.Add(MakeText(node.Label, 11, LoFiTheme.MutedText));
+
+        var row = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin      = new Thickness(0, 2, 0, 0),
+        };
+
+        row.Children.Add(new Border
+        {
+            BorderBrush     = LoFiTheme.Stroke,
+            BorderThickness = new Thickness(LoFiTheme.StrokeWeight),
+            CornerRadius    = Wobbly(node.Line, 2),
+            Background      = LoFiTheme.ElementFill,
+            Padding         = new Thickness(8, 5, 8, 5),
+            MinWidth        = 140,
+            Child           = MakeText(node.Value ?? "MM / DD / YYYY", 12, LoFiTheme.MutedText),
+        });
+
+        // Calendar icon button
+        row.Children.Add(new Border
+        {
+            BorderBrush     = LoFiTheme.Stroke,
+            BorderThickness = new Thickness(LoFiTheme.StrokeWeight),
+            CornerRadius    = Wobbly(node.Line + 1, 2),
+            Background      = LoFiTheme.LightFill,
+            Padding         = new Thickness(7, 5, 7, 5),
+            Margin          = new Thickness(2, 0, 0, 0),
+            Child           = MakeText("▦", 12, LoFiTheme.MutedText),
+        });
+
+        stack.Children.Add(row);
+        return stack;
+    }
+
+    private UIElement RenderDateTimePicker(UiNode node)
+    {
+        var stack = new StackPanel { Orientation = Orientation.Vertical };
+        if (node.Label != null)
+            stack.Children.Add(MakeText(node.Label, 11, LoFiTheme.MutedText));
+
+        var row = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin      = new Thickness(0, 2, 0, 0),
+        };
+
+        // Date part
+        row.Children.Add(new Border
+        {
+            BorderBrush     = LoFiTheme.Stroke,
+            BorderThickness = new Thickness(LoFiTheme.StrokeWeight),
+            CornerRadius    = Wobbly(node.Line, 2),
+            Background      = LoFiTheme.ElementFill,
+            Padding         = new Thickness(8, 5, 8, 5),
+            MinWidth        = 130,
+            Child           = MakeText("MM / DD / YYYY", 12, LoFiTheme.MutedText),
+        });
+        row.Children.Add(new Border
+        {
+            BorderBrush     = LoFiTheme.Stroke,
+            BorderThickness = new Thickness(LoFiTheme.StrokeWeight),
+            CornerRadius    = Wobbly(node.Line + 1, 2),
+            Background      = LoFiTheme.LightFill,
+            Padding         = new Thickness(7, 5, 7, 5),
+            Margin          = new Thickness(2, 0, 0, 0),
+            Child           = MakeText("▦", 12, LoFiTheme.MutedText),
+        });
+
+        // Time part
+        row.Children.Add(new Border
+        {
+            BorderBrush     = LoFiTheme.Stroke,
+            BorderThickness = new Thickness(LoFiTheme.StrokeWeight),
+            CornerRadius    = Wobbly(node.Line + 2, 2),
+            Background      = LoFiTheme.ElementFill,
+            Padding         = new Thickness(8, 5, 8, 5),
+            Margin          = new Thickness(8, 0, 0, 0),
+            MinWidth        = 80,
+            Child           = MakeText("HH : MM", 12, LoFiTheme.MutedText),
+        });
+        row.Children.Add(new Border
+        {
+            BorderBrush     = LoFiTheme.Stroke,
+            BorderThickness = new Thickness(LoFiTheme.StrokeWeight),
+            CornerRadius    = Wobbly(node.Line + 3, 2),
+            Background      = LoFiTheme.LightFill,
+            Padding         = new Thickness(7, 5, 7, 5),
+            Margin          = new Thickness(2, 0, 0, 0),
+            Child           = MakeText("◷", 12, LoFiTheme.MutedText),
+        });
+
+        stack.Children.Add(row);
+        return stack;
+    }
+
+    private UIElement RenderCalendar(UiNode node)
+    {
+        var stack = new StackPanel { Orientation = Orientation.Vertical };
+
+        // Month navigation header
+        var headerRow = new StackPanel
+        {
+            Orientation         = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin              = new Thickness(0, 0, 0, 6),
+        };
+        headerRow.Children.Add(MakeText("◀", 12, LoFiTheme.MutedText));
+        headerRow.Children.Add(MakeText("  April 2024  ", 13, weight: FontWeights.Bold));
+        headerRow.Children.Add(MakeText("▶", 12, LoFiTheme.MutedText));
+        stack.Children.Add(headerRow);
+
+        // Day-of-week header row
+        var dowGrid = new UniformGrid { Columns = 7, Rows = 1 };
+        foreach (var d in new[] { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" })
+            dowGrid.Children.Add(CalCell(d, LoFiTheme.MutedText, FontWeights.Bold));
+        stack.Children.Add(dowGrid);
+
+        // April 2024: starts on Monday (index 1 of Su-Sa), 30 days
+        var dayGrid = new UniformGrid { Columns = 7, Rows = 5 };
+        var cells = new[]
+        {
+            "",  "1",  "2",  "3",  "4",  "5",  "6",
+            "7", "8",  "9",  "10", "11", "12", "13",
+            "14","15", "16", "17", "18", "19", "20",
+            "21","22", "23", "24", "25", "26", "27",
+            "28","29", "30", "",   "",   "",   "",
+        };
+
+        foreach (var cell in cells)
+        {
+            bool isToday = cell == "15";
+            var tb = CalCell(cell,
+                isToday ? LoFiTheme.White : LoFiTheme.DarkText,
+                FontWeights.Normal);
+
+            dayGrid.Children.Add(isToday
+                ? new Border
+                  {
+                      Background   = LoFiTheme.DarkFill,
+                      CornerRadius = new CornerRadius(12),
+                      Child        = tb,
+                      Margin       = new Thickness(2),
+                  }
+                : tb);
+        }
+        stack.Children.Add(dayGrid);
+
+        return LoFiBorder(stack, node.Line, padding: new Thickness(LoFiTheme.Pad));
+    }
+
+    private static TextBlock CalCell(string text, Brush? fg = null, FontWeight? weight = null)
+        => new()
+        {
+            Text                = text,
+            FontFamily          = LoFiTheme.Font,
+            FontSize            = 11,
+            Foreground          = fg ?? LoFiTheme.DarkText,
+            FontWeight          = weight ?? FontWeights.Normal,
+            TextAlignment       = TextAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment   = VerticalAlignment.Center,
+            Padding             = new Thickness(2, 4, 2, 4),
+            MinWidth            = 28,
+        };
 
     // ── Placeholder ───────────────────────────────────────────────────────────
 

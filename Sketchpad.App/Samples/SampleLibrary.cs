@@ -349,6 +349,46 @@ public static class SampleLibrary
                 button "Cancel"
         """);
 
+    // ── Appointment Booking ───────────────────────────────────────────────────
+
+    public static readonly Sample AppointmentBooking = new(
+        "Appointment Booking",
+        "Calendar + date/time pickers: side-by-side month view with a booking detail form.",
+        """
+        # Appointment Booking — calendar beside a date/time form
+        window "Book Appointment" [1020x700]
+
+          navbar
+            brand "ClinicPlus"
+            menu [right]
+              item "My Appointments"
+              item "Log out"
+
+          row
+            col
+              card "Select a Date"
+                calendar "Available Dates"
+                label "Tap a highlighted date to select" [muted]
+
+            col
+              card "Appointment Details"
+                field "Patient name" = "Jane Smith"
+                select "Appointment type" = "General Consultation"
+                divider
+                datepicker "Date" = "2024-04-15"
+                row
+                  datetimepicker "Start time" = "2024-04-15 09:00"
+                  datetimepicker "End time" = "2024-04-15 09:30"
+                divider
+                select "Doctor" = "Dr. Sarah Mitchell"
+                select "Location" = "Room 4 — Ground Floor"
+                textarea "Notes" = "Follow-up from previous visit. Patient requested morning slot."
+                divider
+                row
+                  button "Confirm booking" [primary]
+                  button "Cancel"
+        """);
+
     // ── Index (declared last so all fields above are already initialised) ─────
 
     public static readonly IReadOnlyList<Sample> All =
@@ -359,5 +399,6 @@ public static class SampleLibrary
         ListEdit,
         ParentChildGrid,
         MultiColumnForm,
+        AppointmentBooking,
     ];
 }

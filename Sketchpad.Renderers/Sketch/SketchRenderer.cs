@@ -85,12 +85,16 @@ public class SketchRenderer : IUiRenderer<UIElement>
                 ElementType.Table    => RenderTable(node),
                 ElementType.Icon     => RenderIcon(node),
 
-                ElementType.Alert    => RenderAlert(node),
-                ElementType.Toast    => RenderToast(node),
-                ElementType.Spinner  => RenderSpinner(),
-                ElementType.Progress => RenderProgress(node),
+                ElementType.Alert          => RenderAlert(node),
+                ElementType.Toast          => RenderToast(node),
+                ElementType.Spinner        => RenderSpinner(),
+                ElementType.Progress       => RenderProgress(node),
 
-                _                    => RenderPlaceholder(node),
+                ElementType.DatePicker     => RenderDatePicker(node),
+                ElementType.DateTimePicker => RenderDateTimePicker(node),
+                ElementType.Calendar       => RenderCalendar(node),
+
+                _                          => RenderPlaceholder(node),
             };
         }
         catch
@@ -910,6 +914,85 @@ public class SketchRenderer : IUiRenderer<UIElement>
             Child           = track,
             Margin          = new Thickness(0, 4, 0, 4),
         };
+    }
+
+    // ── Date / Time ───────────────────────────────────────────────────────────
+
+    private UIElement RenderDatePicker(UiNode node)
+    {
+        var stack = new StackPanel { Orientation = Orientation.Vertical };
+        if (node.Label != null)
+            stack.Children.Add(MakeText(node.Label, 11, SketchTheme.MutedText));
+
+        var picker = new DatePicker
+        {
+            Margin              = new Thickness(0, 2, 0, 0),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            MinWidth            = 160,
+        };
+        if (node.Value != null && DateTime.TryParse(node.Value, out var dt))
+            picker.SelectedDate = dt;
+
+        stack.Children.Add(picker);
+        return stack;
+    }
+
+    private UIElement RenderDateTimePicker(UiNode node)
+    {
+        var stack = new StackPanel { Orientation = Orientation.Vertical };
+        if (node.Label != null)
+            stack.Children.Add(MakeText(node.Label, 11, SketchTheme.MutedText));
+
+        var row = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Margin      = new Thickness(0, 2, 0, 0),
+        };
+
+        var picker = new DatePicker { MinWidth = 140 };
+        if (node.Value != null && DateTime.TryParse(node.Value, out var dt))
+            picker.SelectedDate = dt;
+        row.Children.Add(picker);
+
+        // Time part: styled text box showing HH:MM
+        string timeText = node.Value != null && DateTime.TryParse(node.Value, out var dt2)
+            ? dt2.ToString("HH:mm")
+            : "HH:MM";
+
+        row.Children.Add(new Border
+        {
+            BorderBrush     = SketchTheme.Border,
+            BorderThickness = new Thickness(1),
+            CornerRadius    = new CornerRadius(3),
+            Background      = SketchTheme.InputBackground,
+            Padding         = new Thickness(8, 5, 8, 5),
+            Margin          = new Thickness(6, 0, 0, 0),
+            MinWidth        = 80,
+            Child           = MakeText(timeText, 13, SketchTheme.MutedText, family: SketchTheme.CodeFont),
+        });
+
+        stack.Children.Add(row);
+        return stack;
+    }
+
+    private UIElement RenderCalendar(UiNode node)
+    {
+        var cal = new System.Windows.Controls.Calendar
+        {
+            DisplayMode         = System.Windows.Controls.CalendarMode.Month,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin              = new Thickness(0, 2, 0, 0),
+        };
+
+        if (node.Label != null)
+        {
+            var stack = new StackPanel { Orientation = Orientation.Vertical };
+            stack.Children.Add(MakeText(node.Label, 11, SketchTheme.MutedText));
+            stack.Children.Add(cal);
+            return stack;
+        }
+
+        return cal;
     }
 
     // ── Placeholder ───────────────────────────────────────────────────────────

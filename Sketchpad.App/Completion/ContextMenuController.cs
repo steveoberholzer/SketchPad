@@ -59,9 +59,9 @@ public sealed class ContextMenuController
     private static readonly string[] FormLeaves =
     [
         "field", "textarea", "button", "checkbox", "radio",
-        "select", "toggle", "slider", "label", "text",
-        "heading", "badge", "tag", "icon", "avatar", "image",
-        "alert", "toast", "spinner", "progress",
+        "select", "toggle", "slider", "datepicker", "datetimepicker",
+        "label", "text", "heading", "badge", "tag", "icon", "avatar", "image",
+        "calendar", "alert", "toast", "spinner", "progress",
     ];
 
     // ── Construction ──────────────────────────────────────────────────────────

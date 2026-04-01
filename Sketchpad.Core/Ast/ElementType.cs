@@ -18,4 +18,7 @@ public enum ElementType
 
     // Feedback
     Alert, Toast, Spinner, Progress,
+
+    // Date / Time
+    DatePicker, DateTimePicker, Calendar,
 }
