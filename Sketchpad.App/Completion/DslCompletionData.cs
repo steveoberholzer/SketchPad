@@ -96,7 +96,7 @@ public sealed class DslCompletionData : ICompletionData
         Snippet("badge",    "Badge / counter",                "badge \"1\"",                  7, 1),
         Snippet("tag",      "Tag / chip",                     "tag \"Label\"",                5, 5),
         Snippet("table",    "Data table",                     "table"),
-        Snippet("columns",  "Table columns definition",       "columns \"Col1\" \"Col2\"",   9, 4),
+        Snippet("columns",  "Table columns definition",       "columns \"Col1 | Col2\"",     9, 4),
         Snippet("icon",     "Icon",                           "icon \"name\"",                6, 4),
 
         // Feedback

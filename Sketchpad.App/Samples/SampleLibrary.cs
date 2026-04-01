@@ -61,11 +61,11 @@ public static class SampleLibrary
 
               card "Recent Activity"
                 table
-                  columns "Date, Activity, Notes"
-                  row "2024-03-10, Meeting, Discussed Q2 roadmap"
-                  row "2024-02-28, Email, Sent proposal"
-                  row "2024-02-15, Call, Product demo"
-                  row "2024-01-30, Meeting, Onboarding session"
+                  columns "Date | Activity | Notes"
+                  row "2024-03-10 | Meeting | Discussed Q2 roadmap"
+                  row "2024-02-28 | Email | Sent proposal"
+                  row "2024-02-15 | Call | Product demo"
+                  row "2024-01-30 | Meeting | Onboarding session"
         """);
 
     // ── Item Edit ────────────────────────────────────────────────────────────
@@ -143,12 +143,12 @@ public static class SampleLibrary
               select "Company" = "All companies"
               select "Status" = "All statuses"
             table
-              columns "Name, Email, Company, Phone, Status, Added"
-              row "Sarah Mitchell, sarah@acmecorp.com, Acme Corp, +1 555 234-5678, Active, 15 Jan 2024"
-              row "James Carter, james@techco.io, TechCo, +1 555 876-1234, Active, 1 Feb 2024"
-              row "Priya Sharma, priya@startxyz.com, StartXYZ, +1 555 432-9876, Lead, 14 Feb 2024"
-              row "Nikolai Voronov, n.voronov@bigcorp.eu, BigCorp EU, +44 20 1234 5678, Inactive, 3 Mar 2024"
-              row "Mei-Ling Wu, mei@futurecorp.hk, FutureCorp, +852 9876 5432, Active, 12 Mar 2024"
+              columns "Name | Email | Company | Phone | Status | Added"
+              row "Sarah Mitchell | sarah@acmecorp.com | Acme Corp | +1 555 234-5678 | Active | 15 Jan 2024"
+              row "James Carter | james@techco.io | TechCo | +1 555 876-1234 | Active | 1 Feb 2024"
+              row "Priya Sharma | priya@startxyz.com | StartXYZ | +1 555 432-9876 | Lead | 14 Feb 2024"
+              row "Nikolai Voronov | n.voronov@bigcorp.eu | BigCorp EU | +44 20 1234 5678 | Inactive | 3 Mar 2024"
+              row "Mei-Ling Wu | mei@futurecorp.hk | FutureCorp | +852 9876 5432 | Active | 12 Mar 2024"
             row
               label "Showing 5 of 248 contacts" [muted]
               button "Previous" [disabled]
@@ -178,11 +178,11 @@ public static class SampleLibrary
                     field "Search" = "Filter products..."
                     select "Category" = "All"
                   table
-                    columns "SKU, Name, Price, Stock"
-                    row "PRD-001, Wireless Headphones, $129.99, 48"
-                    row "PRD-002, Laptop Stand, $49.99, 112"
-                    row "PRD-003, USB-C Hub, $79.99, 23"
-                    row "PRD-004, Monitor Arm, $89.99, 7"
+                    columns "SKU | Name | Price | Stock"
+                    row "PRD-001 | Wireless Headphones | $129.99 | 48"
+                    row "PRD-002 | Laptop Stand | $49.99 | 112"
+                    row "PRD-003 | USB-C Hub | $79.99 | 23"
+                    row "PRD-004 | Monitor Arm | $89.99 | 7"
                   label "4 of 38 products" [muted]
 
               col
@@ -241,11 +241,11 @@ public static class SampleLibrary
 
             card "Line Items"
               table
-                columns "Description, Qty, Unit Price, Amount"
-                row "Strategy Consulting — March, 15 hrs, $200.00, $3,000.00"
-                row "UX Design Sprint, 1 sprint, $4,500.00, $4,500.00"
-                row "Development — API Integration, 20 hrs, $180.00, $3,600.00"
-                row "Project Management, 8 hrs, $150.00, $1,200.00"
+                columns "Description | Qty | Unit Price | Amount"
+                row "Strategy Consulting — March | 15 hrs | $200.00 | $3,000.00"
+                row "UX Design Sprint | 1 sprint | $4,500.00 | $4,500.00"
+                row "Development — API Integration | 20 hrs | $180.00 | $3,600.00"
+                row "Project Management | 8 hrs | $150.00 | $1,200.00"
               divider
               row
                 spacer

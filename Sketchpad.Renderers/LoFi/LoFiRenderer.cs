@@ -664,8 +664,8 @@ public class LoFiRenderer : IUiRenderer<UIElement>
         var grid = new Grid();
         var colsNode = node.Children.FirstOrDefault(c => c.Type == ElementType.Columns);
         var rows     = node.Children.Where(c => c.Type == ElementType.Row).ToList();
-        var headers  = colsNode?.Label?.Split(", ").Select(s => s.Trim()).ToArray() ?? [];
-        int colCount = Math.Max(headers.Length, rows.Count > 0 ? rows.Max(r => r.Label?.Split(", ").Length ?? 0) : 0);
+        var headers  = colsNode?.Label?.Split('|').Select(s => s.Trim()).ToArray() ?? [];
+        int colCount = Math.Max(headers.Length, rows.Count > 0 ? rows.Max(r => r.Label?.Split('|').Length ?? 0) : 0);
 
         for (int i = 0; i < colCount; i++)
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -691,7 +691,7 @@ public class LoFiRenderer : IUiRenderer<UIElement>
         foreach (var row in rows)
         {
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            var cells = row.Label?.Split(", ").Select(s => s.Trim()).ToArray() ?? [];
+            var cells = row.Label?.Split('|').Select(s => s.Trim()).ToArray() ?? [];
             for (int c = 0; c < Math.Min(cells.Length, colCount); c++)
             {
                 var cell = new Border
