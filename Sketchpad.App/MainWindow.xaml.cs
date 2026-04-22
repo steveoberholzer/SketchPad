@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using Sketchpad.App.About;
+using Sketchpad.App.AI;
 using Sketchpad.App.Completion;
 using Sketchpad.App.Highlighting;
 using Sketchpad.Core.Ast;
@@ -68,6 +69,10 @@ public partial class MainWindow : Window
         else if (e.Key == System.Windows.Input.Key.S &&
             e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
             Save_Click(this, new RoutedEventArgs());
+
+        else if (e.Key == System.Windows.Input.Key.G &&
+            e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+            Generate_Click(this, new RoutedEventArgs());
     }
 
     // ── Menu / toolbar events ─────────────────────────────────────────────────
@@ -125,6 +130,18 @@ public partial class MainWindow : Window
             if (!ConfirmDiscard()) return;
             _currentFilePath = null;
             EditorBox.Text   = win.ChosenDsl;
+            Title            = "Sketchpad";
+        }
+    }
+
+    private void Generate_Click(object sender, RoutedEventArgs e)
+    {
+        var win = new GenerateWindow { Owner = this };
+        if (win.ShowDialog() == true && win.GeneratedDsl != null)
+        {
+            if (!ConfirmDiscard()) return;
+            _currentFilePath = null;
+            EditorBox.Text   = win.GeneratedDsl;
             Title            = "Sketchpad";
         }
     }

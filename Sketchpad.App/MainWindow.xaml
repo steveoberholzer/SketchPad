@@ -20,6 +20,9 @@
                 <MenuItem Header="Export _HTML…" Click="ExportHtml_Click"/>
             </MenuItem>
             <MenuItem Header="_Samples" Click="Samples_Click"/>
+            <MenuItem Header="_AI">
+                <MenuItem Header="Generate with AI…" Click="Generate_Click" InputGestureText="Ctrl+G"/>
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About Sketchpad…" Click="About_Click"/>
             </MenuItem>
@@ -38,6 +41,8 @@
                     <Button Content="Save"    Click="Save_Click"   Padding="8,3" Margin="0,0,4,0" FontSize="12"/>
                     <Separator Margin="4,0"/>
                     <Button Content="Samples…" Click="Samples_Click" Padding="8,3" Margin="0,0,4,0" FontSize="12"/>
+                    <Separator Margin="4,0"/>
+                    <Button Content="Generate with AI…" Click="Generate_Click" Padding="8,3" Margin="0,0,4,0" FontSize="12" FontWeight="SemiBold"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
                     <TextBlock Text="Renderer:" VerticalAlignment="Center" Margin="0,0,6,0"
