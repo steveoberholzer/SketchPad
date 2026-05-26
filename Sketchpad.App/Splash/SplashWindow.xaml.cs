@@ -37,7 +37,7 @@ public partial class SplashWindow : Window
     public void FadeOutAndClose(Action onComplete)
     {
         var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(400));
-        fade.Completed += (_, _) => onComplete();
+        fade.Completed += (_, _) => { onComplete(); Close(); };
         BeginAnimation(OpacityProperty, fade);
     }
 }
