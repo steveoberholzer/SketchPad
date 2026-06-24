@@ -17,7 +17,8 @@
                 <MenuItem Header="_Save"     Click="Save_Click"       InputGestureText="Ctrl+S"/>
                 <MenuItem Header="Save _As…" Click="SaveAs_Click"/>
                 <Separator/>
-                <MenuItem Header="Export _HTML…" Click="ExportHtml_Click"/>
+                <MenuItem Header="Export _HTML…"  Click="ExportHtml_Click"/>
+                <MenuItem Header="Export _PNG…"   Click="ExportPng_Click"  InputGestureText="Ctrl+Shift+P"/>
                 <Separator/>
                 <MenuItem Header="Import from _HTML…" Click="ImportHtml_Click" InputGestureText="Ctrl+I"/>
             </MenuItem>
@@ -47,6 +48,8 @@
                     <Button Content="Generate with AI…" Click="Generate_Click" Padding="8,3" Margin="0,0,4,0" FontSize="12" FontWeight="SemiBold"/>
                     <Separator Margin="4,0"/>
                     <Button Content="Import HTML…" Click="ImportHtml_Click" Padding="8,3" Margin="0,0,4,0" FontSize="12"/>
+                    <Separator Margin="4,0"/>
+                    <Button Content="Export PNG…"  Click="ExportPng_Click"  Padding="8,3" Margin="0,0,4,0" FontSize="12"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
                     <TextBlock Text="Renderer:" VerticalAlignment="Center" Margin="0,0,6,0"

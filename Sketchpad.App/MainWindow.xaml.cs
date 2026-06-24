@@ -1,5 +1,6 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Win32;
@@ -95,6 +96,10 @@ public partial class MainWindow : Window
         else if (e.Key == System.Windows.Input.Key.I &&
             e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
             ImportHtml_Click(this, new RoutedEventArgs());
+
+        else if (e.Key == System.Windows.Input.Key.P &&
+            e.KeyboardDevice.Modifiers == (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Shift))
+            ExportPng_Click(this, new RoutedEventArgs());
     }
 
     // ── Menu / toolbar events ─────────────────────────────────────────────────
@@ -142,6 +147,38 @@ public partial class MainWindow : Window
         };
         if (dlg.ShowDialog() == true)
             File.WriteAllText(dlg.FileName, html);
+    }
+
+    private void ExportPng_Click(object sender, RoutedEventArgs e)
+    {
+        if (PreviewHost.Content is not UIElement visual) return;
+
+        var width  = Math.Max(1, (int)visual.RenderSize.Width);
+        var height = Math.Max(1, (int)visual.RenderSize.Height);
+
+        var rtb = new RenderTargetBitmap(width, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        rtb.Render(visual);
+
+        var dlg = new SaveFileDialog
+        {
+            Filter     = "PNG image (*.png)|*.png",
+            FileName   = Path.GetFileNameWithoutExtension(_currentFilePath ?? "mockup") + ".png",
+            DefaultExt = ".png",
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(rtb));
+        using var stream = File.Create(dlg.FileName);
+        encoder.Save(stream);
+
+        var prev      = StatusText.Text;
+        var prevBrush = StatusText.Foreground;
+        StatusText.Text       = $"Exported → {Path.GetFileName(dlg.FileName)}";
+        StatusText.Foreground = System.Windows.Media.Brushes.DarkGreen;
+        var restore = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        restore.Tick += (_, _) => { restore.Stop(); StatusText.Text = prev; StatusText.Foreground = prevBrush; };
+        restore.Start();
     }
 
     private void Samples_Click(object sender, RoutedEventArgs e)
