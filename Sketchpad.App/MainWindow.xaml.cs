@@ -7,7 +7,9 @@ using Sketchpad.App.About;
 using Sketchpad.App.AI;
 using Sketchpad.App.Completion;
 using Sketchpad.App.Highlighting;
+using Sketchpad.App.Html;
 using Sketchpad.Core.Ast;
+using Sketchpad.Core.Html;
 using Sketchpad.Core.Rendering;
 using Sketchpad.Renderers.LoFi;
 using Sketchpad.Renderers.Sketch;
@@ -50,6 +52,16 @@ public partial class MainWindow : Window
         _ = new CompletionController(EditorBox);
         _ = new ContextMenuController(EditorBox);
 
+        // HTML import / export items on the editor context menu
+        EditorBox.ContextMenu!.Items.Add(new Separator());
+        var pasteHtml = new MenuItem { Header = "Paste from HTML…" };
+        pasteHtml.Click += (_, _) => ImportHtml_Click(this, new RoutedEventArgs());
+        EditorBox.ContextMenu.Items.Add(pasteHtml);
+
+        var copyHtml = new MenuItem { Header = "Copy as Basic HTML" };
+        copyHtml.Click += (_, _) => CopyAsBasicHtml();
+        EditorBox.ContextMenu.Items.Add(copyHtml);
+
         EditorBox.Text = DefaultContent();
     }
 
@@ -73,6 +85,10 @@ public partial class MainWindow : Window
         else if (e.Key == System.Windows.Input.Key.G &&
             e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
             Generate_Click(this, new RoutedEventArgs());
+
+        else if (e.Key == System.Windows.Input.Key.I &&
+            e.KeyboardDevice.Modifiers == System.Windows.Input.ModifierKeys.Control)
+            ImportHtml_Click(this, new RoutedEventArgs());
     }
 
     // ── Menu / toolbar events ─────────────────────────────────────────────────
@@ -144,6 +160,32 @@ public partial class MainWindow : Window
             EditorBox.Text   = win.GeneratedDsl;
             Title            = "Sketchpad";
         }
+    }
+
+    private void ImportHtml_Click(object sender, RoutedEventArgs e)
+    {
+        var win = new HtmlImportWindow { Owner = this };
+        if (win.ShowDialog() == true && win.ImportedDsl != null)
+        {
+            if (!ConfirmDiscard()) return;
+            _currentFilePath = null;
+            EditorBox.Text   = win.ImportedDsl;
+            Title            = "Sketchpad";
+        }
+    }
+
+    private void CopyAsBasicHtml()
+    {
+        if (_lastDocument == null) return;
+        var html = BasicHtmlExporter.Export(_lastDocument);
+        Clipboard.SetText(html);
+        var prev = StatusText.Text;
+        var prevFg = StatusText.Foreground;
+        StatusText.Text       = "Basic HTML copied to clipboard.";
+        StatusText.Foreground = System.Windows.Media.Brushes.DarkGreen;
+        var restore = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        restore.Tick += (_, _) => { restore.Stop(); StatusText.Text = prev; StatusText.Foreground = prevFg; };
+        restore.Start();
     }
 
     private void About_Click(object sender, RoutedEventArgs e)
