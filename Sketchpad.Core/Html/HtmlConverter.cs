@@ -72,28 +72,101 @@ public static class HtmlConverter
 
     private static void ProcessInline(List<HtmlNode> nodes, StringBuilder sb, int depth)
     {
+        var items = BuildLineItems(nodes);
+        if (items.Count == 0) return;
+
+        // Group consecutive items that share the same HTML source line
+        var groups = new List<List<LineItem>>();
+        var current = new List<LineItem> { items[0] };
+
+        for (int i = 1; i < items.Count; i++)
+        {
+            if (items[i].SourceLine == current[0].SourceLine && items[i].SourceLine > 0)
+                current.Add(items[i]);
+            else
+            {
+                groups.Add(current);
+                current = [items[i]];
+            }
+        }
+        groups.Add(current);
+
+        foreach (var group in groups)
+        {
+            // Wrap in row only when 2+ leaf form/action elements share a line
+            bool shouldRow = group.Count > 1 && group.All(IsRowable);
+            if (shouldRow)
+            {
+                Emit(sb, depth, "row");
+                foreach (var item in group)
+                    EmitLineItem(item, sb, depth + 1);
+            }
+            else
+            {
+                foreach (var item in group)
+                    EmitLineItem(item, sb, depth);
+            }
+        }
+    }
+
+    // ── Line-item helpers ────────────────────────────────────────────────────
+
+    private sealed record LineItem(string? Label, HtmlNode Node, int SourceLine);
+
+    /// <summary>
+    /// Pairs text-label+input combos and annotates every item with its source
+    /// line number (from the element itself, so the pair's line = input's line).
+    /// </summary>
+    private static List<LineItem> BuildLineItems(List<HtmlNode> nodes)
+    {
+        var result = new List<LineItem>();
         int i = 0;
         while (i < nodes.Count)
         {
             var node = nodes[i];
 
-            // Text node immediately before a form input → use as label
+            // Text node immediately before a form input → label+input pair
             if (node.NodeType == HtmlNodeType.Text &&
                 i + 1 < nodes.Count && IsFormInput(nodes[i + 1]))
             {
                 var label = CleanLabel(node.InnerText);
                 if (!string.IsNullOrWhiteSpace(label))
                 {
-                    EmitFormInput(nodes[i + 1], label, sb, depth);
+                    // Use the *input's* line so pressing Enter before the label
+                    // correctly places the pair on the next line.
+                    result.Add(new LineItem(label, nodes[i + 1], nodes[i + 1].Line));
                     i += 2;
                     continue;
                 }
             }
 
-            ConvertNode(node, sb, depth);
+            // Skip pure-whitespace text nodes
+            if (node.NodeType == HtmlNodeType.Text &&
+                string.IsNullOrWhiteSpace(node.InnerText.Replace(" ", "")))
+            {
+                i++;
+                continue;
+            }
+
+            result.Add(new LineItem(null, node, node.Line));
             i++;
         }
+        return result;
     }
+
+    private static void EmitLineItem(LineItem item, StringBuilder sb, int depth)
+    {
+        if (item.Label != null && IsFormInput(item.Node))
+            EmitFormInput(item.Node, item.Label, sb, depth);
+        else
+            ConvertNode(item.Node, sb, depth);
+    }
+
+    /// <summary>True for leaf form/action elements that make sense inside a row.</summary>
+    private static bool IsRowable(LineItem item) =>
+        item.Label != null || // labelled input pair always rowable
+        (item.Node.NodeType == HtmlNodeType.Element &&
+         item.Node.Name.ToLowerInvariant() is "input" or "button" or "textarea" or "select" or "a");
 
     // ── Per-node conversion ──────────────────────────────────────────────────
 
