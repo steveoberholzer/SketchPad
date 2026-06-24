@@ -15,6 +15,7 @@ using Sketchpad.Renderers.Gnome;
 using Sketchpad.Renderers.Ios;
 using Sketchpad.Renderers.LoFi;
 using Sketchpad.Renderers.MacOs;
+using Sketchpad.Renderers.MaterialDesign;
 using Sketchpad.Renderers.Sketch;
 using Sketchpad.Renderers.Win95;
 using Sketchpad.Renderers.WinXp;
@@ -39,7 +40,7 @@ public partial class MainWindow : Window
         EditorBox.TextArea.TextView.LineTransformers.Add(new CommentColouriser());
 
         // Renderers
-        _renderers      = [new LoFiRenderer(), new SketchRenderer(), new Win95Renderer(), new WinXpRenderer(), new GnomeRenderer(), new GnomeDarkRenderer(), new MacOsRenderer(), new IosRenderer()];
+        _renderers      = [new LoFiRenderer(), new SketchRenderer(), new Win95Renderer(), new WinXpRenderer(), new GnomeRenderer(), new GnomeDarkRenderer(), new MacOsRenderer(), new IosRenderer(), new MaterialRenderer()];
         _activeRenderer = _renderers[0];
         RendererCombo.ItemsSource   = _renderers.Select(r => r.DisplayName).ToList();
         RendererCombo.SelectedIndex = 0;
