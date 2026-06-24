@@ -11,17 +11,22 @@ namespace Sketchpad.Renderers.Gnome;
 /// <summary>
 /// GNOME / Adwaita renderer.
 /// Dark headerbars, rounded cards, and a blue accent colour.
+/// Pass a GnomeDarkTheme (or any GnomeTheme subclass) for dark-mode variants.
 /// </summary>
 public class GnomeRenderer : IUiRenderer<UIElement>
 {
-    public string DisplayName => "GNOME / GTK";
+    protected readonly GnomeTheme _theme;
+
+    public GnomeRenderer(GnomeTheme? theme = null) => _theme = theme ?? new GnomeTheme();
+
+    public virtual string DisplayName => "GNOME / GTK";
 
     public UIElement Render(UiDocument document)
     {
         var root = new StackPanel
         {
             Orientation         = Orientation.Vertical,
-            Background          = GnomeTheme.PageBg,
+            Background          = _theme.PageBg,
             HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
@@ -30,9 +35,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
         if (document.HasErrors)
         {
-            var errPanel = new StackPanel { Margin = new Thickness(GnomeTheme.Pad) };
+            var errPanel = new StackPanel { Margin = new Thickness(_theme.Pad) };
             foreach (var err in document.Errors)
-                errPanel.Children.Add(MakeText($"Line {err.Line}: {err.Message}", GnomeTheme.Destructive));
+                errPanel.Children.Add(MakeText($"Line {err.Line}: {err.Message}", _theme.Destructive));
             root.Children.Insert(0, errPanel);
         }
 
@@ -53,7 +58,7 @@ public class GnomeRenderer : IUiRenderer<UIElement>
                 ElementType.Row      => RenderRow(node),
                 ElementType.Col      => RenderChildren(node, Orientation.Vertical),
                 ElementType.Divider  => RenderDivider(),
-                ElementType.Spacer   => new Border { Height = GnomeTheme.Gap },
+                ElementType.Spacer   => new Border { Height = _theme.Gap },
 
                 ElementType.Navbar   => RenderNavbar(node),
                 ElementType.Sidebar  => RenderSidebar(node),
@@ -73,7 +78,7 @@ public class GnomeRenderer : IUiRenderer<UIElement>
                 ElementType.Slider   => RenderSlider(node),
                 ElementType.Button   => RenderButton(node),
 
-                ElementType.Label    => MakeText(node.Label ?? "", GnomeTheme.MutedText, 10),
+                ElementType.Label    => MakeText(node.Label ?? "", _theme.MutedText, 10),
                 ElementType.Text     => MakeText(node.Label ?? ""),
                 ElementType.Heading  => RenderHeading(node),
                 ElementType.Avatar   => RenderAvatar(node),
@@ -103,32 +108,33 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    private static TextBlock MakeText(string text, Brush? fg = null, double size = GnomeTheme.FontSize,
+    private TextBlock MakeText(string text, Brush? fg = null, double size = 0,
         FontWeight? weight = null)
         => new()
         {
             Text         = text,
-            FontFamily   = GnomeTheme.Font,
-            FontSize     = size,
-            Foreground   = fg ?? GnomeTheme.DarkText,
+            FontFamily   = _theme.Font,
+            FontSize     = size > 0 ? size : _theme.FontSize,
+            Foreground   = fg ?? _theme.DarkText,
             FontWeight   = weight ?? FontWeights.Normal,
             TextWrapping = TextWrapping.Wrap,
         };
 
     private Border InputBox(UIElement content, double? height = null) => new()
     {
-        Background      = GnomeTheme.InputBg,
-        BorderBrush     = GnomeTheme.InputBorder,
+        Background      = _theme.InputBg,
+        BorderBrush     = _theme.InputBorder,
         BorderThickness = new Thickness(1),
-        CornerRadius    = new CornerRadius(GnomeTheme.CornerRadius),
+        CornerRadius    = new CornerRadius(_theme.CornerRadius),
         Padding         = new Thickness(8, 5, 8, 5),
         Height          = height ?? double.NaN,
         Margin          = new Thickness(0, 3, 0, 0),
         Child           = content,
     };
 
-    private StackPanel RenderChildren(UiNode node, Orientation orientation, double gap = GnomeTheme.Gap)
+    private StackPanel RenderChildren(UiNode node, Orientation orientation, double gap = -1)
     {
+        if (gap < 0) gap = _theme.Gap;
         var panel = new StackPanel { Orientation = orientation };
         bool first = true;
         foreach (var child in node.Children)
@@ -166,11 +172,10 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
         var stack = new StackPanel { Orientation = Orientation.Vertical };
 
-        // GNOME headerbar: dark, window buttons on LEFT, title centred
         var hb = new Border
         {
-            Background = GnomeTheme.HeaderbarBg,
-            Height     = GnomeTheme.HeaderHeight,
+            Background = _theme.HeaderbarBg,
+            Height     = _theme.HeaderHeight,
             Padding    = new Thickness(8, 0, 8, 0),
         };
 
@@ -179,19 +184,18 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         hbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         hbGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        // Window buttons (left side — GNOME default)
         var winBtns = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
-        winBtns.Children.Add(GnomeWindowBtn(GnomeTheme.Destructive));
-        winBtns.Children.Add(GnomeWindowBtn(GnomeTheme.ButtonBorder));
-        winBtns.Children.Add(GnomeWindowBtn(GnomeTheme.ButtonBorder));
+        winBtns.Children.Add(GnomeWindowBtn(_theme.Destructive));
+        winBtns.Children.Add(GnomeWindowBtn(_theme.ButtonBorder));
+        winBtns.Children.Add(GnomeWindowBtn(_theme.ButtonBorder));
 
         var title = new TextBlock
         {
             Text                = node.Label ?? "Window",
-            FontFamily          = GnomeTheme.Font,
-            FontSize            = GnomeTheme.FontSize,
+            FontFamily          = _theme.Font,
+            FontSize            = _theme.FontSize,
             FontWeight          = FontWeights.SemiBold,
-            Foreground          = GnomeTheme.HeaderbarText,
+            Foreground          = _theme.HeaderbarText,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment   = VerticalAlignment.Center,
         };
@@ -205,8 +209,8 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         stack.Children.Add(hb);
         stack.Children.Add(new Border
         {
-            Background = GnomeTheme.PageBg,
-            Padding    = new Thickness(GnomeTheme.Pad),
+            Background = _theme.PageBg,
+            Padding    = new Thickness(_theme.Pad),
             Child      = RenderChildren(node, Orientation.Vertical),
         });
 
@@ -216,9 +220,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
             Width               = width,
             HorizontalAlignment = HorizontalAlignment.Left,
             Margin              = new Thickness(8),
-            CornerRadius        = new CornerRadius(GnomeTheme.CardRadius),
+            CornerRadius        = new CornerRadius(_theme.CardRadius),
             ClipToBounds        = true,
-            BorderBrush         = GnomeTheme.CardBorder,
+            BorderBrush         = _theme.CardBorder,
             BorderThickness     = new Thickness(1),
         };
     }
@@ -235,27 +239,27 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     private UIElement RenderPanel(UiNode node)
     {
         var content = RenderChildren(node, Orientation.Vertical);
-        content.Margin = new Thickness(GnomeTheme.Pad);
+        content.Margin = new Thickness(_theme.Pad);
 
         if (node.Label == null) return content;
 
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         stack.Children.Add(new Border
         {
-            Background      = GnomeTheme.HeaderbarBg,
-            Padding         = new Thickness(GnomeTheme.Pad, 6, GnomeTheme.Pad, 6),
-            Child           = MakeText(node.Label, GnomeTheme.HeaderbarText, weight: FontWeights.SemiBold),
+            Background  = _theme.HeaderbarBg,
+            Padding     = new Thickness(_theme.Pad, 6, _theme.Pad, 6),
+            Child       = MakeText(node.Label, _theme.HeaderbarText, weight: FontWeights.SemiBold),
         });
         stack.Children.Add(content);
 
         return new Border
         {
-            Child         = stack,
-            BorderBrush   = GnomeTheme.CardBorder,
+            Child           = stack,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius  = new CornerRadius(GnomeTheme.CardRadius),
-            ClipToBounds  = true,
-            Margin        = new Thickness(4),
+            CornerRadius    = new CornerRadius(_theme.CardRadius),
+            ClipToBounds    = true,
+            Margin          = new Thickness(4),
         };
     }
 
@@ -266,27 +270,27 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         if (node.Label != null)
             inner.Children.Add(new Border
             {
-                Padding         = new Thickness(0, 0, 0, GnomeTheme.Gap),
-                BorderBrush     = GnomeTheme.Separator,
+                Padding         = new Thickness(0, 0, 0, _theme.Gap),
+                BorderBrush     = _theme.Separator,
                 BorderThickness = new Thickness(0, 0, 0, 1),
-                Margin          = new Thickness(0, 0, 0, GnomeTheme.Gap),
+                Margin          = new Thickness(0, 0, 0, _theme.Gap),
                 Child           = MakeText(node.Label, weight: FontWeights.SemiBold),
             });
 
         foreach (var child in node.Children)
             inner.Children.Add(new Border
             {
-                Margin = new Thickness(0, 0, 0, GnomeTheme.Gap / 2),
+                Margin = new Thickness(0, 0, 0, _theme.Gap / 2),
                 Child  = RenderNode(child),
             });
 
         return new Border
         {
-            Background      = GnomeTheme.CardBg,
-            BorderBrush     = GnomeTheme.CardBorder,
+            Background      = _theme.CardBg,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(GnomeTheme.CardRadius),
-            Padding         = new Thickness(GnomeTheme.Pad),
+            CornerRadius    = new CornerRadius(_theme.CardRadius),
+            Padding         = new Thickness(_theme.Pad),
             Margin          = new Thickness(4),
             Child           = inner,
         };
@@ -301,7 +305,7 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         foreach (var child in node.Children)
             grid.Children.Add(new Border
             {
-                Padding = new Thickness(GnomeTheme.Gap / 2, 0, GnomeTheme.Gap / 2, 0),
+                Padding = new Thickness(_theme.Gap / 2, 0, _theme.Gap / 2, 0),
                 Child   = RenderNode(child),
             });
         return grid;
@@ -333,9 +337,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
         return new Border
         {
-            Background = GnomeTheme.HeaderbarBg,
-            Height     = GnomeTheme.HeaderHeight,
-            Padding    = new Thickness(GnomeTheme.Pad, 0, GnomeTheme.Pad, 0),
+            Background = _theme.HeaderbarBg,
+            Height     = _theme.HeaderHeight,
+            Padding    = new Thickness(_theme.Pad, 0, _theme.Pad, 0),
             Child      = grid,
         };
     }
@@ -351,8 +355,8 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         return new Border
         {
             Width           = width,
-            Background      = GnomeTheme.SidebarBg,
-            BorderBrush     = GnomeTheme.CardBorder,
+            Background      = _theme.SidebarBg,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(0, 0, 1, 0),
             Child           = inner,
         };
@@ -371,12 +375,12 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         bool active = node.HasModifier("active");
         return new Border
         {
-            Background   = active ? GnomeTheme.ActiveItemBg : Brushes.Transparent,
-            CornerRadius = new CornerRadius(GnomeTheme.CornerRadius),
+            Background   = active ? _theme.ActiveItemBg : Brushes.Transparent,
+            CornerRadius = new CornerRadius(_theme.CornerRadius),
             Padding      = new Thickness(8, 5, 8, 5),
             Margin       = new Thickness(2, 1, 2, 1),
             Child        = MakeText(node.Label ?? "",
-                fg: active ? GnomeTheme.AccentText : GnomeTheme.DarkText),
+                fg: active ? _theme.AccentText : _theme.DarkText),
         };
     }
 
@@ -386,7 +390,7 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         foreach (var child in node.Children) strip.Children.Add(RenderNode(child));
         return new Border
         {
-            BorderBrush     = GnomeTheme.Separator,
+            BorderBrush     = _theme.Separator,
             BorderThickness = new Thickness(0, 0, 0, 1),
             Child           = strip,
         };
@@ -398,11 +402,11 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         return new Border
         {
             Padding         = new Thickness(16, 8, 16, 8),
-            BorderBrush     = GnomeTheme.Accent,
+            BorderBrush     = _theme.Accent,
             BorderThickness = new Thickness(0, 0, 0, active ? 3 : 0),
             Margin          = new Thickness(0, 0, 4, 0),
             Child           = MakeText(node.Label ?? "",
-                fg: active ? GnomeTheme.Accent : GnomeTheme.MutedText,
+                fg: active ? _theme.Accent : _theme.MutedText,
                 weight: active ? FontWeights.SemiBold : FontWeights.Normal),
         };
     }
@@ -410,7 +414,7 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     private UIElement RenderBrand(UiNode node) => new Border
     {
         Padding = new Thickness(0, 0, 16, 0),
-        Child   = MakeText(node.Label ?? "Brand", GnomeTheme.HeaderbarText, weight: FontWeights.Bold),
+        Child   = MakeText(node.Label ?? "Brand", _theme.HeaderbarText, weight: FontWeights.Bold),
     };
 
     // ── Form ─────────────────────────────────────────────────────────────────
@@ -419,8 +423,8 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     {
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         if (node.Label != null)
-            stack.Children.Add(MakeText(node.Label, GnomeTheme.DarkText, 10));
-        stack.Children.Add(InputBox(MakeText(node.Value ?? "", GnomeTheme.MutedText)));
+            stack.Children.Add(MakeText(node.Label, _theme.DarkText, 10));
+        stack.Children.Add(InputBox(MakeText(node.Value ?? "", _theme.MutedText)));
         return stack;
     }
 
@@ -428,7 +432,7 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     {
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         if (node.Label != null)
-            stack.Children.Add(MakeText(node.Label, GnomeTheme.DarkText, 10));
+            stack.Children.Add(MakeText(node.Label, _theme.DarkText, 10));
         stack.Children.Add(InputBox(new Border(), height: 72));
         return stack;
     }
@@ -440,17 +444,17 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
         var box = new Border
         {
-            Width           = 16,
-            Height          = 16,
-            CornerRadius    = new CornerRadius(4),
-            BorderBrush     = chk ? GnomeTheme.Accent : GnomeTheme.InputBorder,
-            BorderThickness = new Thickness(1.5),
-            Background      = chk ? GnomeTheme.Accent : GnomeTheme.InputBg,
-            Margin          = new Thickness(0, 0, 6, 0),
+            Width             = 16,
+            Height            = 16,
+            CornerRadius      = new CornerRadius(4),
+            BorderBrush       = chk ? _theme.Accent : _theme.InputBorder,
+            BorderThickness   = new Thickness(1.5),
+            Background        = chk ? _theme.Accent : _theme.InputBg,
+            Margin            = new Thickness(0, 0, 6, 0),
             VerticalAlignment = VerticalAlignment.Center,
             Child = chk ? new TextBlock
             {
-                Text = "✓", FontSize = 10, Foreground = GnomeTheme.AccentText,
+                Text = "✓", FontSize = 10, Foreground = _theme.AccentText,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment   = VerticalAlignment.Center,
             } : null,
@@ -469,9 +473,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         {
             Width             = 16,
             Height            = 16,
-            Stroke            = chk ? GnomeTheme.Accent : GnomeTheme.InputBorder,
+            Stroke            = chk ? _theme.Accent : _theme.InputBorder,
             StrokeThickness   = 1.5,
-            Fill              = chk ? GnomeTheme.Accent : GnomeTheme.InputBg,
+            Fill              = chk ? _theme.Accent : _theme.InputBg,
             Margin            = new Thickness(0, 0, 6, 0),
             VerticalAlignment = VerticalAlignment.Center,
         });
@@ -483,13 +487,13 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     {
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         if (node.Label != null)
-            stack.Children.Add(MakeText(node.Label, GnomeTheme.DarkText, 10));
+            stack.Children.Add(MakeText(node.Label, _theme.DarkText, 10));
 
         var row = new Grid();
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var val  = MakeText(node.Value ?? "", GnomeTheme.DarkText);
-        var chev = MakeText("▾", GnomeTheme.MutedText);
+        var val  = MakeText(node.Value ?? "", _theme.DarkText);
+        var chev = MakeText("▾", _theme.MutedText);
         Grid.SetColumn(val, 0); Grid.SetColumn(chev, 1);
         row.Children.Add(val); row.Children.Add(chev);
 
@@ -502,11 +506,11 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         bool on = node.HasModifier("on") || node.HasModifier("checked");
         var track = new Border
         {
-            Width        = 38,
-            Height       = 20,
-            CornerRadius = new CornerRadius(10),
-            Background   = on ? GnomeTheme.Accent : GnomeTheme.ButtonBorder,
-            Margin       = new Thickness(0, 0, 8, 0),
+            Width             = 38,
+            Height            = 20,
+            CornerRadius      = new CornerRadius(10),
+            Background        = on ? _theme.Accent : _theme.ButtonBorder,
+            Margin            = new Thickness(0, 0, 8, 0),
             VerticalAlignment = VerticalAlignment.Center,
         };
 
@@ -520,31 +524,30 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     {
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         if (node.Label != null)
-            stack.Children.Add(MakeText(node.Label, GnomeTheme.DarkText, 10));
+            stack.Children.Add(MakeText(node.Label, _theme.DarkText, 10));
 
         var track = new Border
         {
             Height       = 4,
-            Background   = GnomeTheme.CardBorder,
+            Background   = _theme.CardBorder,
             CornerRadius = new CornerRadius(2),
             Margin       = new Thickness(0, 8, 0, 0),
         };
         var filled = new Border
         {
-            Height       = 4,
-            Background   = GnomeTheme.Accent,
-            CornerRadius = new CornerRadius(2),
+            Height              = 4,
+            Background          = _theme.Accent,
+            CornerRadius        = new CornerRadius(2),
             HorizontalAlignment = HorizontalAlignment.Left,
-            Width        = 80,
+            Width               = 80,
         };
-
         var knob = new Ellipse
         {
-            Width  = 16,
-            Height = 16,
-            Fill   = GnomeTheme.Accent,
+            Width               = 16,
+            Height              = 16,
+            Fill                = _theme.Accent,
             HorizontalAlignment = HorizontalAlignment.Left,
-            Margin = new Thickness(72, 0, 0, 0),
+            Margin              = new Thickness(72, 0, 0, 0),
         };
 
         var canvas = new Grid { Height = 16, Margin = new Thickness(0, 4, 0, 0) };
@@ -562,25 +565,25 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         bool danger   = node.HasModifier("danger");
         bool disabled = node.HasModifier("disabled");
 
-        Brush bg = danger   ? GnomeTheme.Destructive
-                 : primary  ? GnomeTheme.Accent
-                 : GnomeTheme.ButtonBg;
-        Brush fg = (primary || danger) ? GnomeTheme.AccentText : GnomeTheme.DarkText;
-        if (disabled) { bg = GnomeTheme.CardBorder; fg = GnomeTheme.MutedText; }
+        Brush bg = danger   ? _theme.Destructive
+                 : primary  ? _theme.Accent
+                 : _theme.ButtonBg;
+        Brush fg = (primary || danger) ? _theme.AccentText : _theme.DarkText;
+        if (disabled) { bg = _theme.CardBorder; fg = _theme.MutedText; }
 
         return new Border
         {
             Background      = bg,
-            BorderBrush     = danger || primary ? Brushes.Transparent : GnomeTheme.ButtonBorder,
+            BorderBrush     = danger || primary ? Brushes.Transparent : _theme.ButtonBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(GnomeTheme.CornerRadius),
+            CornerRadius    = new CornerRadius(_theme.CornerRadius),
             Padding         = new Thickness(14, 6, 14, 6),
-            Margin          = new Thickness(0, 0, GnomeTheme.Gap, 0),
+            Margin          = new Thickness(0, 0, _theme.Gap, 0),
             Child           = new TextBlock
             {
                 Text                = node.Label ?? "Button",
-                FontFamily          = GnomeTheme.Font,
-                FontSize            = GnomeTheme.FontSize,
+                FontFamily          = _theme.Font,
+                FontSize            = _theme.FontSize,
                 Foreground          = fg,
                 HorizontalAlignment = HorizontalAlignment.Center,
             },
@@ -595,17 +598,17 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     private UIElement RenderAvatar(UiNode node)
     {
         bool circle = node.HasModifier("circle");
-        var size = 40;
+        int size = 40;
         if (circle)
             return new Ellipse
             {
                 Width = size, Height = size,
-                Fill = GnomeTheme.Accent, Margin = new Thickness(0, 0, 0, 4),
+                Fill = _theme.Accent, Margin = new Thickness(0, 0, 0, 4),
             };
         return new Rectangle
         {
             Width = size, Height = size,
-            Fill = GnomeTheme.Accent, RadiusX = GnomeTheme.CardRadius, RadiusY = GnomeTheme.CardRadius,
+            Fill = _theme.Accent, RadiusX = _theme.CardRadius, RadiusY = _theme.CardRadius,
             Margin = new Thickness(0, 0, 0, 4),
         };
     }
@@ -618,14 +621,14 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         var canvas = new Canvas { Width = w, Height = h };
         canvas.Children.Add(new Rectangle
         {
-            Width = w, Height = h, Fill = GnomeTheme.SidebarBg,
-            RadiusX = GnomeTheme.CornerRadius, RadiusY = GnomeTheme.CornerRadius,
+            Width = w, Height = h, Fill = _theme.SidebarBg,
+            RadiusX = _theme.CornerRadius, RadiusY = _theme.CornerRadius,
         });
-        canvas.Children.Add(new Line { X1 = 0, Y1 = 0, X2 = w, Y2 = h, Stroke = GnomeTheme.CardBorder, StrokeThickness = 1 });
-        canvas.Children.Add(new Line { X1 = w, Y1 = 0, X2 = 0, Y2 = h, Stroke = GnomeTheme.CardBorder, StrokeThickness = 1 });
+        canvas.Children.Add(new Line { X1 = 0, Y1 = 0, X2 = w, Y2 = h, Stroke = _theme.CardBorder, StrokeThickness = 1 });
+        canvas.Children.Add(new Line { X1 = w, Y1 = 0, X2 = 0, Y2 = h, Stroke = _theme.CardBorder, StrokeThickness = 1 });
         if (node.Label != null)
         {
-            var lbl = MakeText(node.Label, GnomeTheme.MutedText, 10);
+            var lbl = MakeText(node.Label, _theme.MutedText, 10);
             Canvas.SetLeft(lbl, 4); Canvas.SetTop(lbl, 4);
             canvas.Children.Add(lbl);
         }
@@ -634,24 +637,24 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
     private UIElement RenderBadge(UiNode node) => new Border
     {
-        Background   = GnomeTheme.Accent,
+        Background   = _theme.Accent,
         CornerRadius = new CornerRadius(10),
         Padding      = new Thickness(7, 2, 7, 2),
         Margin       = new Thickness(0, 0, 4, 0),
-        Child        = MakeText(node.Label ?? "", GnomeTheme.AccentText, 10),
+        Child        = MakeText(node.Label ?? "", _theme.AccentText, 10),
     };
 
     private UIElement RenderTag(UiNode node)
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal };
         row.Children.Add(MakeText(node.Label ?? "", size: 10));
-        row.Children.Add(MakeText(" ×", GnomeTheme.MutedText, 10));
+        row.Children.Add(MakeText(" ×", _theme.MutedText, 10));
         return new Border
         {
-            Background      = GnomeTheme.SidebarBg,
-            BorderBrush     = GnomeTheme.CardBorder,
+            Background      = _theme.SidebarBg,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(GnomeTheme.CornerRadius),
+            CornerRadius    = new CornerRadius(_theme.CornerRadius),
             Padding         = new Thickness(6, 2, 6, 2),
             Margin          = new Thickness(0, 0, 4, 0),
             Child           = row,
@@ -677,9 +680,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
             {
                 var cell = new Border
                 {
-                    Background      = GnomeTheme.SidebarBg,
+                    Background      = _theme.SidebarBg,
                     Padding         = new Thickness(8, 6, 8, 6),
-                    BorderBrush     = GnomeTheme.Separator,
+                    BorderBrush     = _theme.Separator,
                     BorderThickness = new Thickness(0, 0, 0, 1),
                     Child           = MakeText(headers[c], weight: FontWeights.SemiBold, size: 10),
                 };
@@ -698,9 +701,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
             {
                 var cell = new Border
                 {
-                    Background      = altRow ? GnomeTheme.SidebarBg : GnomeTheme.CardBg,
+                    Background      = altRow ? _theme.SidebarBg : _theme.CardBg,
                     Padding         = new Thickness(8, 6, 8, 6),
-                    BorderBrush     = GnomeTheme.Separator,
+                    BorderBrush     = _theme.Separator,
                     BorderThickness = new Thickness(0, 0, 0, 1),
                     Child           = MakeText(cells[c]),
                 };
@@ -713,9 +716,9 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
         return new Border
         {
-            BorderBrush     = GnomeTheme.CardBorder,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(GnomeTheme.CornerRadius),
+            CornerRadius    = new CornerRadius(_theme.CornerRadius),
             ClipToBounds    = true,
             Margin          = new Thickness(0, 4, 0, 4),
             Child           = grid,
@@ -724,22 +727,22 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
     private UIElement RenderIcon(UiNode node) => new Border
     {
-        Width        = 22,
-        Height       = 22,
-        Background   = GnomeTheme.SidebarBg,
-        BorderBrush  = GnomeTheme.CardBorder,
+        Width           = 22,
+        Height          = 22,
+        Background      = _theme.SidebarBg,
+        BorderBrush     = _theme.CardBorder,
         BorderThickness = new Thickness(1),
-        CornerRadius = new CornerRadius(4),
-        Margin       = new Thickness(0, 0, 4, 0),
-        Child        = MakeText(node.Label?[..1].ToUpper() ?? "?", GnomeTheme.MutedText, 10),
+        CornerRadius    = new CornerRadius(4),
+        Margin          = new Thickness(0, 0, 4, 0),
+        Child           = MakeText(node.Label?[..1].ToUpper() ?? "?", _theme.MutedText, 10),
     };
 
     // ── Feedback ─────────────────────────────────────────────────────────────
 
-    private static UIElement RenderDivider() => new Border
+    private UIElement RenderDivider() => new Border
     {
         Height              = 1,
-        Background          = GnomeTheme.Separator,
+        Background          = _theme.Separator,
         Margin              = new Thickness(0, 4, 0, 4),
         HorizontalAlignment = HorizontalAlignment.Stretch,
     };
@@ -750,18 +753,18 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         bool danger  = node.HasModifier("danger") || node.HasModifier("error");
         bool success = node.HasModifier("success");
 
-        Brush bg = warning ? GnomeTheme.WarningBg
-                 : danger  ? GnomeTheme.ErrorBg
-                 : success ? GnomeTheme.SuccessBg
+        Brush bg = warning ? _theme.WarningBg
+                 : danger  ? _theme.ErrorBg
+                 : success ? _theme.SuccessBg
                  : new SolidColorBrush(Color.FromRgb(0xCC, 0xE5, 0xFF));
 
         return new Border
         {
             Background      = bg,
-            BorderBrush     = GnomeTheme.CardBorder,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(GnomeTheme.CornerRadius),
-            Padding         = new Thickness(GnomeTheme.Pad, 8, GnomeTheme.Pad, 8),
+            CornerRadius    = new CornerRadius(_theme.CornerRadius),
+            Padding         = new Thickness(_theme.Pad, 8, _theme.Pad, 8),
             Margin          = new Thickness(0, 4, 0, 4),
             Child           = MakeText(node.Label ?? ""),
         };
@@ -769,19 +772,19 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
     private UIElement RenderToast(UiNode node) => new Border
     {
-        Background          = GnomeTheme.HeaderbarBg,
-        CornerRadius        = new CornerRadius(GnomeTheme.CardRadius),
-        Padding             = new Thickness(GnomeTheme.Pad, 8, GnomeTheme.Pad, 8),
+        Background          = _theme.HeaderbarBg,
+        CornerRadius        = new CornerRadius(_theme.CardRadius),
+        Padding             = new Thickness(_theme.Pad, 8, _theme.Pad, 8),
         Margin              = new Thickness(0, 4, 0, 4),
         HorizontalAlignment = HorizontalAlignment.Center,
-        Child               = MakeText(node.Label ?? "", GnomeTheme.HeaderbarText),
+        Child               = MakeText(node.Label ?? "", _theme.HeaderbarText),
     };
 
-    private static UIElement RenderSpinner() => new Ellipse
+    private UIElement RenderSpinner() => new Ellipse
     {
         Width           = 24,
         Height          = 24,
-        Stroke          = GnomeTheme.Accent,
+        Stroke          = _theme.Accent,
         StrokeThickness = 3,
         StrokeDashArray = new DoubleCollection([5, 3]),
         Margin          = new Thickness(4),
@@ -796,13 +799,13 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         var track = new Grid { Height = 6 };
         track.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(pct, GridUnitType.Star) });
         track.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100 - pct, GridUnitType.Star) });
-        var fill = new Rectangle { Fill = GnomeTheme.Accent, RadiusX = 3, RadiusY = 3 };
+        var fill = new Rectangle { Fill = _theme.Accent, RadiusX = 3, RadiusY = 3 };
         Grid.SetColumn(fill, 0);
         track.Children.Add(fill);
 
         return new Border
         {
-            Background   = GnomeTheme.CardBorder,
+            Background   = _theme.CardBorder,
             CornerRadius = new CornerRadius(3),
             Child        = track,
             Margin       = new Thickness(0, 4, 0, 4),
@@ -815,24 +818,17 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     {
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         if (node.Label != null)
-            stack.Children.Add(MakeText(node.Label, GnomeTheme.DarkText, 10));
-
-        var row = new Grid { Margin = new Thickness(0, 3, 0, 0) };
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            stack.Children.Add(MakeText(node.Label, _theme.DarkText, 10));
 
         var inner = new Grid();
         inner.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         inner.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var dateTxt = MakeText(node.Value ?? "MM / DD / YYYY", GnomeTheme.MutedText);
-        var calIco  = MakeText("▦", GnomeTheme.MutedText);
+        var dateTxt = MakeText(node.Value ?? "MM / DD / YYYY", _theme.MutedText);
+        var calIco  = MakeText("▦", _theme.MutedText);
         Grid.SetColumn(dateTxt, 0); Grid.SetColumn(calIco, 1);
         inner.Children.Add(dateTxt); inner.Children.Add(calIco);
 
-        var inputBorder = InputBox(inner);
-        Grid.SetColumn(inputBorder, 0);
-        row.Children.Add(inputBorder);
-        stack.Children.Add(row);
+        stack.Children.Add(InputBox(inner));
         return stack;
     }
 
@@ -840,12 +836,12 @@ public class GnomeRenderer : IUiRenderer<UIElement>
     {
         var stack = new StackPanel { Orientation = Orientation.Vertical };
         if (node.Label != null)
-            stack.Children.Add(MakeText(node.Label, GnomeTheme.DarkText, 10));
+            stack.Children.Add(MakeText(node.Label, _theme.DarkText, 10));
 
         var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 3, 0, 0) };
-        row.Children.Add(new Border { MinWidth = 140, Child = InputBox(MakeText("MM / DD / YYYY", GnomeTheme.MutedText)) });
-        row.Children.Add(new Border { Width = GnomeTheme.Gap });
-        row.Children.Add(new Border { MinWidth = 90, Child = InputBox(MakeText("HH : MM", GnomeTheme.MutedText)) });
+        row.Children.Add(new Border { MinWidth = 140, Child = InputBox(MakeText("MM / DD / YYYY", _theme.MutedText)) });
+        row.Children.Add(new Border { Width = _theme.Gap });
+        row.Children.Add(new Border { MinWidth = 90, Child = InputBox(MakeText("HH : MM", _theme.MutedText)) });
 
         stack.Children.Add(row);
         return stack;
@@ -859,26 +855,30 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         {
             Orientation         = Orientation.Horizontal,
             HorizontalAlignment = HorizontalAlignment.Center,
-            Margin              = new Thickness(0, 0, 0, GnomeTheme.Gap),
+            Margin              = new Thickness(0, 0, 0, _theme.Gap),
         };
         header.Children.Add(new Border
         {
-            Background = GnomeTheme.ButtonBg, CornerRadius = new CornerRadius(GnomeTheme.CornerRadius),
-            Padding = new Thickness(6, 2, 6, 2), Margin = new Thickness(0, 0, 8, 0),
-            Child = MakeText("◀", GnomeTheme.MutedText),
+            Background   = _theme.ButtonBg,
+            CornerRadius = new CornerRadius(_theme.CornerRadius),
+            Padding      = new Thickness(6, 2, 6, 2),
+            Margin       = new Thickness(0, 0, 8, 0),
+            Child        = MakeText("◀", _theme.MutedText),
         });
         header.Children.Add(MakeText("  April 2024  ", weight: FontWeights.SemiBold));
         header.Children.Add(new Border
         {
-            Background = GnomeTheme.ButtonBg, CornerRadius = new CornerRadius(GnomeTheme.CornerRadius),
-            Padding = new Thickness(6, 2, 6, 2), Margin = new Thickness(8, 0, 0, 0),
-            Child = MakeText("▶", GnomeTheme.MutedText),
+            Background   = _theme.ButtonBg,
+            CornerRadius = new CornerRadius(_theme.CornerRadius),
+            Padding      = new Thickness(6, 2, 6, 2),
+            Margin       = new Thickness(8, 0, 0, 0),
+            Child        = MakeText("▶", _theme.MutedText),
         });
         stack.Children.Add(header);
 
         var dowGrid = new UniformGrid { Columns = 7, Rows = 1 };
         foreach (var d in new[] { "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa" })
-            dowGrid.Children.Add(GnomeCalCell(d, GnomeTheme.MutedText, FontWeights.SemiBold));
+            dowGrid.Children.Add(CalCell(d, _theme.MutedText, FontWeights.SemiBold));
         stack.Children.Add(dowGrid);
 
         var dayGrid = new UniformGrid { Columns = 7, Rows = 5 };
@@ -894,12 +894,12 @@ public class GnomeRenderer : IUiRenderer<UIElement>
         foreach (var cell in cells)
         {
             bool today = cell == "15";
-            var tb = GnomeCalCell(cell, today ? GnomeTheme.AccentText : GnomeTheme.DarkText);
+            var tb = CalCell(cell, today ? _theme.AccentText : _theme.DarkText);
             dayGrid.Children.Add(today
                 ? new Border
                   {
-                      Background   = GnomeTheme.Accent,
-                      CornerRadius = new CornerRadius(GnomeTheme.CornerRadius),
+                      Background   = _theme.Accent,
+                      CornerRadius = new CornerRadius(_theme.CornerRadius),
                       Child        = tb,
                       Margin       = new Thickness(2),
                   }
@@ -909,22 +909,22 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
         return new Border
         {
-            Background      = GnomeTheme.CardBg,
-            BorderBrush     = GnomeTheme.CardBorder,
+            Background      = _theme.CardBg,
+            BorderBrush     = _theme.CardBorder,
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(GnomeTheme.CardRadius),
-            Padding         = new Thickness(GnomeTheme.Pad),
+            CornerRadius    = new CornerRadius(_theme.CardRadius),
+            Padding         = new Thickness(_theme.Pad),
             Margin          = new Thickness(4),
             Child           = stack,
         };
     }
 
-    private static TextBlock GnomeCalCell(string text, Brush? fg = null, FontWeight? weight = null) => new()
+    private TextBlock CalCell(string text, Brush? fg = null, FontWeight? weight = null) => new()
     {
         Text                = text,
-        FontFamily          = GnomeTheme.Font,
-        FontSize            = GnomeTheme.FontSize,
-        Foreground          = fg ?? GnomeTheme.DarkText,
+        FontFamily          = _theme.Font,
+        FontSize            = _theme.FontSize,
+        Foreground          = fg ?? _theme.DarkText,
         FontWeight          = weight ?? FontWeights.Normal,
         TextAlignment       = TextAlignment.Center,
         HorizontalAlignment = HorizontalAlignment.Center,
@@ -935,12 +935,12 @@ public class GnomeRenderer : IUiRenderer<UIElement>
 
     private UIElement RenderPlaceholder(UiNode node) => new Border
     {
-        Background      = GnomeTheme.SidebarBg,
-        BorderBrush     = GnomeTheme.CardBorder,
+        Background      = _theme.SidebarBg,
+        BorderBrush     = _theme.CardBorder,
         BorderThickness = new Thickness(1),
-        CornerRadius    = new CornerRadius(GnomeTheme.CornerRadius),
+        CornerRadius    = new CornerRadius(_theme.CornerRadius),
         Padding         = new Thickness(6, 3, 6, 3),
         Margin          = new Thickness(2),
-        Child           = MakeText($"[{node.Type}]", GnomeTheme.MutedText),
+        Child           = MakeText($"[{node.Type}]", _theme.MutedText),
     };
 }
